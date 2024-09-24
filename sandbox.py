@@ -22,11 +22,11 @@ def neural_network(input_data, expected_data):
         expected_to_hidden_2_weights = hidden_2_to_output_weights.transpose()
         hidden_2_hidden_1_weights = hidden_1_to_hidden_2_weights.transpose()
 
-        # backwad pass
+        # backwad pass (It's just calculating each layers target so that we can calculate each layer loss)
         hidden_2_neurons_target = (cp.dot(expected_data, expected_to_hidden_2_weights)) + hidden_2_bias
         hidden_1_neurons_target = (cp.dot(hidden_2_neurons_target, hidden_2_hidden_1_weights)) + hidden_1_bias
         
-        # Errors for each layer
+        # Each layer error
         error_last_layer = output_neurons - expected_data
         error_hidden_2 = hidden_2_neurons - hidden_2_neurons_target
         error_hidden_1 = hidden_1_neurons - hidden_1_neurons_target
