@@ -2,7 +2,7 @@ import torch
 from torch.nn import Linear
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from model_features import BATCH_SIZE, EPOCHS, LEARNING_RATE
+from model_features import BATCH_SIZE, EPOCHS, LEARNING_RATE, HIDDEN_LAYER_ACTIVATION, OUTPUT_LAYER_ACTIVATION, LOSS_FUNCTION, MODEL_FEATURE_SIZE, DEVICE
 
 class MlpNetwork(torch.nn.Module):
     def __init__(self, model_feature_size: list, layer_activation_function: torch.nn, output_activation_function: torch.nn,
@@ -74,8 +74,8 @@ def runner():
     training_dataloader = DataLoader(training_dataset, batch_size=BATCH_SIZE, shuffle=True)
     validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    mlp_model = MlpNetwork(model_feature_size=[784, 2000, 10], layer_activation_function=torch.nn.LeakyReLU(),
-                           output_activation_function=torch.nn.Softmax(-1), learning_rate=LEARNING_RATE, loss_function=torch.nn.CrossEntropyLoss(), device="cuda")
+    mlp_model = MlpNetwork(model_feature_size=MODEL_FEATURE_SIZE, layer_activation_function=HIDDEN_LAYER_ACTIVATION,
+                           output_activation_function=OUTPUT_LAYER_ACTIVATION, learning_rate=LEARNING_RATE, loss_function=LOSS_FUNCTION, device=DEVICE)
 
     for epoch in range(EPOCHS):
         print(F'EPOCHS: {epoch+1}')
