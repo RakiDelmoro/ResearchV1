@@ -13,9 +13,9 @@ def generate_pair_of_data(random_input):
 
     while True:
         # generate_input = cp.array([[random.randint(0, 2), random.randint(0, 2)]])
-        hidden_1_neurons = (cp.dot(random_input, input_to_hidden_1_target_weights)) + hidden_1_target_bias
-        hidden_2_neurons = (cp.dot(hidden_1_neurons, hidden_1_to_hidden_2_target_weights)) + hidden_2_target_bias
-        expected = (cp.dot(hidden_2_neurons, hidden_2_to_output_target_weights)) + output_target_bias
+        hidden_1_neurons = cp.dot(random_input, input_to_hidden_1_target_weights) + hidden_1_target_bias
+        hidden_2_neurons = cp.dot(hidden_1_neurons, hidden_1_to_hidden_2_target_weights) + hidden_2_target_bias
+        expected = cp.dot(hidden_2_neurons, hidden_2_to_output_target_weights) + output_target_bias
 
         yield expected
 
@@ -38,24 +38,19 @@ def neural_network():
         expected_data = next(iter(generate_pair_of_data(generate_input)))
 
         # Forward pass
-        hidden_1_neurons = (cp.dot(generate_input, input_to_hidden_1_weights)) + hidden_1_bias
-        hidden_2_neurons = (cp.dot(hidden_1_neurons, hidden_1_to_hidden_2_weights)) + hidden_2_bias
-        output_neurons = (cp.dot(hidden_2_neurons, hidden_2_to_output_weights)) + output_bias
+        hidden_1_neurons = cp.dot(generate_input, input_to_hidden_1_weights) + hidden_1_bias
+        hidden_2_neurons = cp.dot(hidden_1_neurons, hidden_1_to_hidden_2_weights)  + hidden_2_bias
+        output_neurons = cp.dot(hidden_2_neurons, hidden_2_to_output_weights) + output_bias
 
-        # Weight use same as forward pass but transposed
-        expected_to_hidden_2_weights = hidden_2_to_output_weights.transpose()
-        hidden_2_hidden_1_weights = hidden_1_to_hidden_2_weights.transpose()
+        hidden_2_neurons_target = cp.dot(expected_data, hidden_2_to_output_weights.transpose()) + hidden_2_bias
+        hidden_1_neurons_target = cp.dot(hidden_2_neurons_target, hidden_1_to_hidden_2_weights.transpose()) + hidden_1_bias
 
-        # backwad pass (It's just calculating each layers target so that we can calculate each layer loss)
-        hidden_2_neurons_target = (cp.dot(expected_data, expected_to_hidden_2_weights)) + hidden_2_bias
-        hidden_1_neurons_target = (cp.dot(hidden_2_neurons_target, hidden_2_hidden_1_weights)) + hidden_1_bias
-
-        # Each layer error
+        # # Each layer error
         error_last_layer = output_neurons - expected_data
         error_hidden_2 = hidden_2_neurons - hidden_2_neurons_target
         error_hidden_1 = hidden_1_neurons - hidden_1_neurons_target
 
-        # update parameters
+        # update parameters oja's learning rule
         hidden_2_to_output_weights -= 0.01 * cp.dot(hidden_2_neurons.transpose(), error_last_layer)
         output_bias -= 0.01 * cp.sum(error_last_layer, axis=0)
         hidden_1_to_hidden_2_weights -= 0.01 * cp.dot(hidden_1_neurons.transpose(), error_hidden_2)
@@ -63,11 +58,40 @@ def neural_network():
         input_to_hidden_1_weights -= 0.01 * cp.dot(generate_input.transpose(), error_hidden_1)
         hidden_1_bias -= 0.01 * cp.sum(error_hidden_1, axis=0)
 
-        # Network stress
+        # Backpropagation
+        # hidden_2_to_output_weights_gradient = 0
+        # output_bias_gradient = 0
+        # hidden_1_to_hidden_2_weights_gradient = 0
+        # hidden_2_bias_gradient = 0 
+        # input_to_hidden_1_weights_gradient = 0
+        # hidden_1_bias_gradient = 0
+
+        # hidden_2_to_output_weights_gradient += cp.dot(hidden_2_neurons.transpose(), error_last_layer)
+        # output_bias_gradient += cp.sum(error_last_layer, axis=0)
+
+        # hidden_2_neurons_error = cp.dot(error_last_layer, hidden_2_to_output_weights)
+        # hidden_1_to_hidden_2_weights_gradient += cp.dot(hidden_1_neurons.transpose(), hidden_2_neurons_error)
+        # hidden_2_bias_gradient += cp.sum(hidden_2_neurons_error, axis=0)
+
+        # hidden_1_neurons_error = cp.dot(hidden_2_neurons_error, hidden_1_to_hidden_2_weights)
+        # input_to_hidden_1_weights_gradient += cp.dot(generate_input.transpose(), hidden_1_neurons_error)
+        # hidden_1_bias_gradient += cp.sum(hidden_1_neurons_error, axis=0)
+
+        # hidden_2_to_output_weights -= 0.01 * hidden_2_to_output_weights_gradient
+        # output_bias -= 0.01 * output_bias_gradient
+        # hidden_1_to_hidden_2_weights -= 0.01 * hidden_1_to_hidden_2_weights_gradient
+        # hidden_2_bias -= 0.01 * hidden_2_bias_gradient
+        # input_to_hidden_1_weights -= 0.01 * input_to_hidden_1_weights_gradient
+        # hidden_1_bias -= 0.01 * hidden_1_bias_gradient
+
+        # # Network stress
         network_stress = sum([error_last_layer, error_hidden_2, error_hidden_1])**2
-        print(output_bias)
+        print(hidden_2_to_output_weights.tolist())
         print(f"Output neuron: {output_neurons} Expected: {expected_data}")
         print(f"Network stress: {cp.mean(network_stress)}")
+
+        if epochs == 20000:
+            break
 
         epochs += 1
 
