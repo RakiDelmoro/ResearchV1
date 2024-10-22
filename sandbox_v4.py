@@ -15,7 +15,7 @@ def neural_network(network_architecture: list):
             neurons = cp.dot(neurons, forward_axons[neurons_index]) + forward_dentrites[neurons_index]
             neurons_activations.append(neurons)
         return neurons_activations
-    
+
     def backward_in_neurons(neurons):
         neurons_activations = [neurons]
         for neurons_index in range(len(network_architecture)-1):
