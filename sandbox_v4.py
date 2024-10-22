@@ -54,8 +54,8 @@ def neural_network(network_architecture: list):
             backward_neurons_activations = backward_in_neurons(backward_pass_input_neurons)
 
             neurons_loss = calculate_network_stress(forward_neurons_activations, backward_neurons_activations)
-            forward_axons_and_dentrites_update(neurons_loss, forward_neurons_activations, learning_rate=0.01)
-            backward_axons_and_dentrites_update(neurons_loss, backward_neurons_activations, learning_rate=0.1)
+            forward_axons_and_dentrites_update(neurons_loss, forward_neurons_activations, learning_rate=0.001)
+            backward_axons_and_dentrites_update(neurons_loss, backward_neurons_activations, learning_rate=0.001)
 
             print(cp.mean(sum(neurons_loss)**2))
             print(forward_neurons_activations[-1], backward_pass_input_neurons)
