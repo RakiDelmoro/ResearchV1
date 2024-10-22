@@ -8,4 +8,4 @@
 		}
 	},
 	"runArgs": [ "--gpus", "all" ]
-}
+} 
