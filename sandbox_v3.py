@@ -21,7 +21,7 @@ def neural_network(network_size: list):
 
         return neurons_activations
 
-    def calculate_neurons_loss(forward_pass_activations, backward_pass_activations):
+    def calculate_network_stress(forward_pass_activations, backward_pass_activations):
         neurons_losses = []
         neuron_loss_and_previous_neurons = []
         for each_neurons_activation in range(len(network_size)-1):
@@ -51,7 +51,7 @@ def neural_network(network_size: list):
         backward_neurons_activations = backward_in_neurons(generated_expected_output_neurons)
 
         while True:
-            neurons_loss_correspond_to_previous_neurons, network_stress = calculate_neurons_loss(forward_neurons_activations, backward_neurons_activations)
+            neurons_loss_correspond_to_previous_neurons, network_stress = calculate_network_stress(forward_neurons_activations, backward_neurons_activations)
             update_axons_and_dentrites(neurons_loss_correspond_to_previous_neurons)
             forward_neurons_activations = forward_in_neurons(generated_input_neurons)
             backward_neurons_activations = backward_in_neurons(generated_expected_output_neurons)

@@ -1,7 +1,7 @@
 import random
 import cupy as cp
 
-def generate_pair_of_data(random_input):
+def generate_pair_of_data():
     input_to_hidden_1_target_weights = cp.array([[-0.4534, 0.3253], [0.6575, 0.1234]])
     hidden_1_target_bias = cp.array([0.02341, -0.3463])
 
@@ -12,8 +12,8 @@ def generate_pair_of_data(random_input):
     output_target_bias = cp.array([0.1123, 0.9763])
 
     while True:
-        # generate_input = cp.array([[random.randint(0, 2), random.randint(0, 2)]])
-        hidden_1_neurons = cp.dot(random_input, input_to_hidden_1_target_weights) + hidden_1_target_bias
+        generated_input = cp.array([[random.randint(0, 2), random.randint(0, 2)]])
+        hidden_1_neurons = cp.dot(generated_input, input_to_hidden_1_target_weights) + hidden_1_target_bias
         hidden_2_neurons = cp.dot(hidden_1_neurons, hidden_1_to_hidden_2_target_weights) + hidden_2_target_bias
         expected = cp.dot(hidden_2_neurons, hidden_2_to_output_target_weights) + output_target_bias
 
@@ -47,7 +47,6 @@ def neural_network(input_data, expected_data):
         error_hidden_2 = hidden_2_neurons - hidden_2_neurons_target
         error_hidden_1 = hidden_1_neurons - hidden_1_neurons_target
 
-        # update parameters oja's learning rule
         hidden_2_to_output_weights -= 0.01 * cp.dot(hidden_2_neurons.transpose(), error_last_layer)
         output_bias -= 0.01 * cp.sum(error_last_layer, axis=0)
         hidden_1_to_hidden_2_weights -= 0.01 * cp.dot(hidden_1_neurons.transpose(), error_hidden_2)
