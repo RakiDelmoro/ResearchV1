@@ -19,14 +19,14 @@ def neural_network(network_architecture: list):
             neurons = cp.dot(neurons, forward_axons[layer_idx]) + forward_dentrites[layer_idx]
             neurons_activations.append(neurons)
         return neurons_activations
-    
+
     def backward_in_neurons(neurons):
         neurons_activations = [neurons]
         for layer_idx in range(len(network_architecture)-1):
             neurons = cp.dot(neurons, backward_axons[layer_idx]) + backward_dentrites[layer_idx]
             neurons_activations.append(neurons)
         return neurons_activations
-    
+
     def calculate_network_stress(forward_activations, backward_activations):
         forward_pass_stress = []
         backward_pass_stress = []
@@ -43,15 +43,15 @@ def neural_network(network_architecture: list):
             forward_pass_stress.append(cp.mean(forward_neurons_stress))
             backward_pass_stress.append(cp.mean(backward_neurons_stress))
         return tuple_of_forward_neurond_activation_and_stress, tuple_of_backward_neurons_activation_and_stress, forward_pass_stress, backward_pass_stress
-    
+
     def update_axons_and_dentrites(neurons_and_stress, axons_to_update: list, dentrites_to_update: list, for_backward_pass: bool=False):
         # Update from output connection to input connection
         for layer_idx in range(len(network_architecture)-1):
             neurons_activation = neurons_and_stress[layer_idx][0]
             neurons_stress = neurons_and_stress[layer_idx][1]
-            
-            axons_to_update[-(layer_idx+1)] -= 0.01 * cp.dot(neurons_activation.transpose(), neurons_stress)
-            dentrites_to_update[-(layer_idx+1)] -= 0.01 * cp.sum(neurons_stress, axis=0)
+
+            axons_to_update[-(layer_idx+1)] -= 0.1 * cp.dot(neurons_activation.transpose(), neurons_stress)
+            dentrites_to_update[-(layer_idx+1)] -= 0.1 * cp.sum(neurons_stress, axis=0)
 
     def runner():
         epochs = 0
@@ -61,8 +61,8 @@ def neural_network(network_architecture: list):
             forward_pass_activations = forward_in_neurons(forward_input)
             backward_pass_activations = backward_in_neurons(backward_input)
             forward_neurons_and_stress, backward_neurons_and_stress, forward_layers_stress, backward_layers_stress = calculate_network_stress(forward_pass_activations, backward_pass_activations)
-            print(f'Forward Layers Stress: {sum(forward_layers_stress)**2}')
-            print(f'Backward Layers Stress: {sum(backward_layers_stress)**2}')
+            print(f'Forward Layers Stress: {cp.mean(sum(forward_layers_stress)**2)}')
+            print(f'Backward Layers Stress: {cp.mean(sum(backward_layers_stress)**2)}')
             print(f'{GREEN}Forward Pass Prediction{RESET}: {forward_pass_activations[-1]},  {RED}Backward Pass Input{RESET}: {backward_pass_activations[0]}')
             print(f'{GREEN}Backward Pass Prediction{RESET}: {backward_pass_activations[-1]}, {RED}Forward Pass Input{RESET}: {forward_pass_activations[0]}')
             update_axons_and_dentrites(forward_neurons_and_stress, forward_axons, forward_dentrites)
